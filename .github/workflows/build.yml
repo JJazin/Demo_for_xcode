@@ -1,0 +1,65 @@
+name: Build LoginDemo IPA
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: macos-26
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 构建 Archive
+        run: |
+          xcodebuild -project LoginDemo.xcodeproj \
+            -scheme LoginDemo \
+            -configuration Release \
+            -archivePath build/LoginDemo.xcarchive \
+            archive \
+            DEVELOPMENT_TEAM=${{ secrets.DEV_TEAM_ID }} \
+            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_IDENTITY="Apple Development" \
+            -allowProvisioningUpdates
+
+      - name: 导出 IPA（Ad-hoc 可安装版）
+        run: |
+          cat > exportOptions.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>ad-hoc</string>
+            <key>teamID</key><string>${{ secrets.DEV_TEAM_ID }}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>compileBitcode</key><false/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath build/LoginDemo.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist exportOptions.plist \
+            -allowProvisioningUpdates
+
+      - name: 列出构建产物
+        run: |
+          ls -la build/
+          ls -la build/*.ipa 2>/dev/null && echo "IPA exists"
+
+      - name: 上传 IPA 安装包
+        uses: actions/upload-artifact@v4
+        with:
+          name: LoginDemo-IPA
+          path: build/LoginDemo.ipa
+          retention-days: 14
+
+      - name: 上传构建日志
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-logs
+          path: build/
+          retention-days: 7
