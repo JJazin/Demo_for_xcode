@@ -1,18 +1,34 @@
 name: LoginDemo
+
+schemes:
+  LoginDemo:
+    build:
+      targets:
+        LoginDemo: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
 options:
   bundleIdPrefix: dev.jjazin
   deploymentTarget:
-    iOS: "16.0"
-  xcodeVersion: "27.0"
-  generateEmptyDirectories: true
+    iOS: "15.0"
+  xcodeVersion: "14.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
 
 settings:
   base:
-    SWIFT_VERSION: "5.9"
+    SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1,2"
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Manual
     CODE_SIGNING_REQUIRED: "NO"
     CODE_SIGNING_ALLOWED: "NO"
@@ -29,7 +45,6 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.jjazin.LoginDemo
-        INFOPLIST_GENERATION_MODE: GeneratedFile
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -39,5 +54,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_PREVIEWS: YES
         GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_NAME: "$(TARGET_NAME)"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
         SWIFT_EMIT_LOC_STRINGS: YES
+        ALWAYS_SEARCH_USER_PATHS: NO
