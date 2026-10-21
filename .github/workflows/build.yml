@@ -22,11 +22,16 @@ jobs:
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO
 
+      - name: 整理 .app（保留 .app 目录外壳）
+        run: |
+          mkdir -p out-sim
+          cp -R dd/Build/Products/Debug-iphonesimulator/LoginDemo.app out-sim/
+
       - name: 上传 .app（模拟器）
         uses: actions/upload-artifact@v4
         with:
           name: LoginDemo-App-Simulator
-          path: "dd/Build/Products/Debug-iphonesimulator/LoginDemo.app"
+          path: "out-sim/LoginDemo.app"
           retention-days: 14
           if-no-files-found: error
 
