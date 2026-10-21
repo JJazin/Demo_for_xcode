@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 构建 .app（无签名，Simulator）
+      - name: 构建 .app（模拟器，Debug）
         run: |
           xcodebuild \
             -project LoginDemo.xcodeproj \
@@ -22,10 +22,34 @@ jobs:
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: 上传构建产物
+      - name: 上传 .app（模拟器）
         uses: actions/upload-artifact@v4
         with:
-          name: LoginDemo-App
+          name: LoginDemo-App-Simulator
           path: "dd/Build/Products/Debug-iphonesimulator/LoginDemo.app"
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: 构建 .ipa（真机 arm64，未签名）
+        run: |
+          xcodebuild \
+            -project LoginDemo.xcodeproj \
+            -scheme LoginDemo \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath dd-device \
+            build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+          mkdir -p ipa/Payload
+          cp -R dd-device/Build/Products/Release-iphoneos/LoginDemo.app ipa/Payload/
+          cd ipa && zip -qry ../LoginDemo-unsigned.ipa Payload
+
+      - name: 上传 .ipa（真机）
+        uses: actions/upload-artifact@v4
+        with:
+          name: LoginDemo-IPA-Unsigned
+          path: "LoginDemo-unsigned.ipa"
           retention-days: 14
           if-no-files-found: error
