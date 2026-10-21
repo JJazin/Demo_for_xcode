@@ -71,7 +71,7 @@ LoginDemo/
 
 ### 触发
 
-Actions 页��� → **Build LoginDemo (Free, no signing)** → **Run workflow**。
+Actions 页面 → **Build LoginDemo (Free, no signing)** → **Run workflow**。
 
 也可以用 API：
 

@@ -1,0 +1,15 @@
+# Xcode / build outputs
+build/
+dd/
+dd-device/
+dd-local/
+DerivedData/
+*.xcresult
+
+# staging used by CI
+out-sim/
+ipa/
+*.ipa
+
+# macOS
+.DS_Store
