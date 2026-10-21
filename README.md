@@ -12,7 +12,7 @@
 |---|---|
 | 本地 `xcodebuild` 编译（模拟器） | ✅ 通过 |
 | GitHub Actions 编译（`macos-26` runner） | ✅ 通过 |
-| 产出模拟器 `.app` artifact | ✅ 可下载 |
+| 产出模拟器 `.app` artifact（保留 `.app` 目录外壳） | ✅ 可下载 |
 | 产出真机 arm64 `.ipa`（未签名） | ✅ 可下载 |
 | 侧载安装到真机 | ⏳ 待验证（需 iPad/手机插线用 Sideloadly 签名安装） |
 | 正式签名 + 上架 App Store | ⏳ 待办（需 Apple Developer Program，$99/年） |
@@ -85,10 +85,12 @@ curl -X POST "https://api.github.com/repos/<owner>/<repo>/actions/workflows/buil
 
 | Artifact | 内容 | 用途 |
 |---|---|---|
-| `LoginDemo-App-Simulator` | `LoginDemo.app`（模拟器架构） | 装进 Xcode 模拟器 |
+| `LoginDemo-App-Simulator` | 解压后是 `LoginDemo.app/` 目录（x86_64 + arm64） | 装进 Xcode 模拟器 |
 | `LoginDemo-IPA-Unsigned` | `LoginDemo-unsigned.ipa`（真机 arm64，未签名） | 用 Sideloadly / AltStore 侧载到真机 |
 
-### 三个必须注意的坑
+最新验证运行：[`39553424116`](https://github.com/JJazin/Demo_for_xcode/actions/runs/39553424116)（commit `8dbd1f7`，success）。
+
+### 四个必须注意的坑
 
 **1. PAT 需要 `workflow` 权限**（经典 PAT）或多一项 `Workflows: Read and write`（细粒度 PAT）。
 GitHub 会对 `.github/workflows/` 下的文件做**服务端强制拦截** —— 缺权限时，Contents API、Git Data API（tree/commit）、`git push` 全部失败。注意 `Contents: write` 单独**不够**，必须单独授权 `Workflows`。
@@ -103,6 +105,9 @@ GitHub 会对 `.github/workflows/` 下的文件做**服务端强制拦截** —�
 
 **3. 模拟器 destination 不要写死机型。**
 写 `name=iPhone 16` 在 runner 上会报 `Unable to find a device matching the provided destination specifier`（runner 上没有命名的模拟器设备）。用 `generic/platform=iOS Simulator`。
+
+**4. `upload-artifact` 会压平顶层目录。**
+上传单个路径 `out-sim/LoginDemo.app` 时，artifact 里只剩 `.app` 的**内容**（`LoginDemo`、`Info.plist`…），`.app` 外壳丢失，下载后无法直接安装。修法：把 `.app` 放进一个空的父目录，上传**父目录**（本仓库用 `path: "out-sim"`），artifact 根目录里就会保留 `LoginDemo.app/`。
 
 ---
 
